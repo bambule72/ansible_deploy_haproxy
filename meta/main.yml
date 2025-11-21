@@ -1,0 +1,25 @@
+---
+# meta file for ansible_deploy_haproxy
+galaxy_info:
+  author: bambule72
+  description: Install and configure HAProxy on RHEL servers
+  company:
+
+  license: MIT
+
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+
+  galaxy_tags:
+    - haproxy
+    - loadbalancer
+    - proxy
+    - rhel
+    - redhat
+
+dependencies: []

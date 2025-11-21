@@ -1,0 +1,87 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Check if HAProxy is installed
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Verify HAProxy package is installed
+      ansible.builtin.assert:
+        that:
+          - "'haproxy' in ansible_facts.packages"
+        fail_msg: "HAProxy package is not installed"
+        success_msg: "HAProxy package is installed"
+
+    - name: Check HAProxy service status
+      ansible.builtin.service_facts:
+
+    - name: Verify HAProxy service is running
+      ansible.builtin.assert:
+        that:
+          - "ansible_facts.services['haproxy.service'].state == 'running'"
+          - "ansible_facts.services['haproxy.service'].status == 'enabled'"
+        fail_msg: "HAProxy service is not running or not enabled"
+        success_msg: "HAProxy service is running and enabled"
+
+    - name: Check if HAProxy configuration file exists
+      ansible.builtin.stat:
+        path: /etc/haproxy/haproxy.cfg
+      register: haproxy_config
+
+    - name: Verify HAProxy configuration file exists
+      ansible.builtin.assert:
+        that:
+          - haproxy_config.stat.exists
+          - haproxy_config.stat.isreg
+        fail_msg: "HAProxy configuration file does not exist"
+        success_msg: "HAProxy configuration file exists"
+
+    - name: Validate HAProxy configuration
+      ansible.builtin.command:
+        cmd: haproxy -c -f /etc/haproxy/haproxy.cfg
+      register: haproxy_validate
+      changed_when: false
+      failed_when: haproxy_validate.rc != 0
+
+    - name: Verify HAProxy configuration is valid
+      ansible.builtin.assert:
+        that:
+          - haproxy_validate.rc == 0
+        fail_msg: "HAProxy configuration is invalid"
+        success_msg: "HAProxy configuration is valid"
+
+    - name: Read HAProxy configuration
+      ansible.builtin.slurp:
+        src: /etc/haproxy/haproxy.cfg
+      register: haproxy_config_content
+
+    - name: Decode HAProxy configuration
+      ansible.builtin.set_fact:
+        haproxy_config_text: "{{ haproxy_config_content['content'] | b64decode }}"
+
+    - name: Verify frontend configuration is present
+      ansible.builtin.assert:
+        that:
+          - "'frontend http_frontend' in haproxy_config_text"
+          - "'frontend https_frontend' in haproxy_config_text"
+        fail_msg: "Frontend configuration is missing"
+        success_msg: "Frontend configuration is present"
+
+    - name: Verify backend configuration is present
+      ansible.builtin.assert:
+        that:
+          - "'backend web_backend' in haproxy_config_text"
+          - "'backend web_backend_ssl' in haproxy_config_text"
+        fail_msg: "Backend configuration is missing"
+        success_msg: "Backend configuration is present"
+
+    - name: Verify stats configuration is present
+      ansible.builtin.assert:
+        that:
+          - "'listen stats' in haproxy_config_text"
+        fail_msg: "Stats configuration is missing"
+        success_msg: "Stats configuration is present"
