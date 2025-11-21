@@ -1,0 +1,179 @@
+---
+# Example 1: Simple HTTP Load Balancer
+# Uncomment and customize for your use case
+
+# haproxy_frontends:
+#   - name: "http_frontend"
+#     bind: "*:80"
+#     mode: "http"
+#     default_backend: "web_backend"
+#     options:
+#       - "httplog"
+#       - "forwardfor"
+
+# haproxy_backends:
+#   - name: "web_backend"
+#     mode: "http"
+#     balance: "roundrobin"
+#     options:
+#       - "httpchk GET /"
+#     servers:
+#       - name: "web1"
+#         address: "192.168.1.10:8080"
+#         check: true
+#       - name: "web2"
+#         address: "192.168.1.11:8080"
+#         check: true
+
+# ============================================================================
+# Example 2: HTTPS with SSL Termination
+# ============================================================================
+
+# haproxy_frontends:
+#   - name: "https_frontend"
+#     bind: "*:443 ssl crt /etc/haproxy/certs/server.pem"
+#     mode: "http"
+#     default_backend: "secure_backend"
+#     options:
+#       - "httplog"
+#       - "forwardfor"
+#       - "http-server-close"
+
+# haproxy_backends:
+#   - name: "secure_backend"
+#     mode: "http"
+#     balance: "roundrobin"
+#     options:
+#       - "httpchk GET /health"
+#     servers:
+#       - name: "app1"
+#         address: "10.0.1.10:8080"
+#         check: true
+
+# ============================================================================
+# Example 3: HTTP to HTTPS Redirect
+# ============================================================================
+
+# haproxy_frontends:
+#   - name: "http_frontend"
+#     bind: "*:80"
+#     mode: "http"
+#     default_backend: "redirect_backend"
+#
+#   - name: "https_frontend"
+#     bind: "*:443 ssl crt /etc/haproxy/certs/server.pem"
+#     mode: "http"
+#     default_backend: "web_backend"
+
+# haproxy_backends:
+#   - name: "redirect_backend"
+#     mode: "http"
+#     http_request:
+#       - "redirect scheme https code 301"
+#
+#   - name: "web_backend"
+#     mode: "http"
+#     balance: "roundrobin"
+#     servers:
+#       - name: "web1"
+#         address: "192.168.1.10:8080"
+#         check: true
+
+# ============================================================================
+# Example 4: Multiple Backends with Path-Based Routing
+# ============================================================================
+
+# haproxy_frontends:
+#   - name: "http_frontend"
+#     bind: "*:80"
+#     mode: "http"
+#     options:
+#       - "httplog"
+#       - "forwardfor"
+#     acls:
+#       - "is_api path_beg /api"
+#       - "is_static path_beg /static"
+#       - "is_admin path_beg /admin"
+#     use_backend:
+#       - "api_backend if is_api"
+#       - "static_backend if is_static"
+#       - "admin_backend if is_admin"
+#     default_backend: "web_backend"
+
+# haproxy_backends:
+#   - name: "web_backend"
+#     mode: "http"
+#     balance: "roundrobin"
+#     servers:
+#       - name: "web1"
+#         address: "192.168.1.10:8080"
+#         check: true
+#
+#   - name: "api_backend"
+#     mode: "http"
+#     balance: "leastconn"
+#     options:
+#       - "httpchk GET /health"
+#     servers:
+#       - name: "api1"
+#         address: "192.168.1.20:3000"
+#         check: true
+#
+#   - name: "static_backend"
+#     mode: "http"
+#     balance: "roundrobin"
+#     servers:
+#       - name: "cdn1"
+#         address: "192.168.1.30:80"
+#         check: false
+#
+#   - name: "admin_backend"
+#     mode: "http"
+#     balance: "roundrobin"
+#     servers:
+#       - name: "admin1"
+#         address: "192.168.1.40:9000"
+#         check: true
+
+# ============================================================================
+# Example 5: TCP Mode for Non-HTTP Traffic (e.g., MySQL)
+# ============================================================================
+
+# haproxy_frontends:
+#   - name: "mysql_frontend"
+#     bind: "*:3306"
+#     mode: "tcp"
+#     default_backend: "mysql_backend"
+
+# haproxy_backends:
+#   - name: "mysql_backend"
+#     mode: "tcp"
+#     balance: "leastconn"
+#     servers:
+#       - name: "mysql1"
+#         address: "10.0.1.10:3306"
+#         check: true
+#       - name: "mysql2"
+#         address: "10.0.1.11:3306"
+#         check: true
+#         backup: true
+
+# ============================================================================
+# Statistics Page Configuration
+# ============================================================================
+
+# haproxy_stats_enable: true
+# haproxy_stats_port: 8080
+# haproxy_stats_uri: "/stats"
+# haproxy_stats_realm: "HAProxy Statistics"
+# haproxy_stats_auth: "admin:YourSecurePassword123!"
+
+# ============================================================================
+# Global and Default Tuning (Optional)
+# ============================================================================
+
+# Override global settings if needed
+# haproxy_global_maxconn: 8000
+# haproxy_defaults_timeout_connect: "5s"
+# haproxy_defaults_timeout_client: "50s"
+# haproxy_defaults_timeout_server: "50s"
