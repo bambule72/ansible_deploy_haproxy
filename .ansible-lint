@@ -11,7 +11,7 @@ warn_list:
 exclude_paths:
   - .git/
   - .github/
-  - molecule/*/
+  - molecule/*/.cache/
   - '*.md'
 
 kinds:
