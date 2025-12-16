@@ -1,0 +1,25 @@
+---
+# ansible-lint configuration
+skip_list:
+  - 'yaml[line-length]'  # Allow longer lines in YAML
+  - 'name[casing]'       # Allow flexible naming conventions
+
+warn_list:
+  - experimental       # Warn about experimental features
+  - 'role-name'       # Warn about role naming
+
+exclude_paths:
+  - .git/
+  - .github/
+  - molecule/*/.cache/
+  - '*.md'
+
+kinds:
+  - yaml: '**/*.yaml'
+  - yaml: '**/*.yml'
+  - playbook: '**/playbook*.yml'
+  - playbook: '**/converge.yml'
+  - playbook: '**/verify.yml'
+  - tasks: '**/tasks/*.yml'
+  - vars: '**/vars/*.yml'
+  - meta: '**/meta/*.yml'

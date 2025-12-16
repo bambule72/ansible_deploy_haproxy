@@ -1,0 +1,4 @@
+---
+# This file can be left empty if you want to use the role defaults
+# Add custom variables here to override defaults
+# Example usage: ansible-playbook -i inventory.ini playbook.yml -e @vars/main.yml

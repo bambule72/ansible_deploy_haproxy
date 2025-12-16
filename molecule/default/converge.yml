@@ -1,0 +1,50 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  vars:
+    haproxy_frontends:
+      - name: "http_frontend"
+        bind: "*:80"
+        mode: "http"
+        default_backend: "web_backend"
+        options:
+          - "httplog"
+          - "forwardfor"
+      - name: "https_frontend"
+        bind: "*:443"
+        mode: "tcp"
+        default_backend: "web_backend_ssl"
+
+    haproxy_backends:
+      - name: "web_backend"
+        mode: "http"
+        balance: "roundrobin"
+        options:
+          - "httpchk GET /"
+        servers:
+          - name: "web1"
+            address: "127.0.0.1:8080"
+            check: true
+          - name: "web2"
+            address: "127.0.0.1:8081"
+            check: true
+            backup: true
+      - name: "web_backend_ssl"
+        mode: "tcp"
+        balance: "roundrobin"
+        servers:
+          - name: "web_ssl1"
+            address: "127.0.0.1:8443"
+            check: false
+
+    haproxy_stats_enable: true
+    haproxy_stats_port: 8080
+    haproxy_stats_uri: "/stats"
+    haproxy_stats_auth: "admin:test123"
+
+  tasks:
+    - name: Include ansible_deploy_haproxy role
+      ansible.builtin.include_role:
+        name: ansible_deploy_haproxy

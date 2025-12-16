@@ -1,0 +1,79 @@
+---
+# defaults file for ansible_deploy_haproxy
+
+# HAProxy global settings
+haproxy_global_log: "127.0.0.1 local2"
+haproxy_global_chroot: "/var/lib/haproxy"
+haproxy_global_pidfile: "/var/run/haproxy.pid"
+haproxy_global_maxconn: 4000
+haproxy_global_user: "haproxy"
+haproxy_global_group: "haproxy"
+haproxy_global_daemon: true
+haproxy_global_stats_socket: "/var/lib/haproxy/stats"
+haproxy_global_ssl_default_bind_ciphers: "PROFILE=SYSTEM"
+haproxy_global_ssl_default_bind_options: "ssl-min-ver TLSv1.2"
+
+# HAProxy defaults settings
+haproxy_defaults_mode: "http"
+haproxy_defaults_log: "global"
+haproxy_defaults_option:
+  - "httplog"
+  - "dontlognull"
+haproxy_defaults_timeout_connect: "10s"
+haproxy_defaults_timeout_client: "1m"
+haproxy_defaults_timeout_server: "1m"
+haproxy_defaults_timeout_http_request: "10s"
+haproxy_defaults_timeout_queue: "1m"
+haproxy_defaults_timeout_http_keep_alive: "10s"
+haproxy_defaults_timeout_check: "10s"
+haproxy_defaults_maxconn: 3000
+
+# HAProxy frontends configuration
+# Example:
+# haproxy_frontends:
+#   - name: "http_frontend"
+#     bind: "*:80"
+#     mode: "http"
+#     default_backend: "http_backend"
+#     options:
+#       - "httplog"
+#       - "forwardfor"
+#     acls:
+#       - "is_api path_beg /api"
+#     use_backend:
+#       - "api_backend if is_api"
+#   - name: "https_frontend"
+#     bind: "*:443 ssl crt /etc/haproxy/certs/server.pem"
+#     mode: "http"
+#     default_backend: "https_backend"
+#     options:
+#       - "httplog"
+haproxy_frontends: []
+
+# HAProxy backends configuration
+# Example:
+# haproxy_backends:
+#   - name: "http_backend"
+#     mode: "http"
+#     balance: "roundrobin"
+#     options:
+#       - "httpchk GET /"
+#     servers:
+#       - name: "server1"
+#         address: "192.168.1.10:8080"
+#         check: true
+#       - name: "server2"
+#         address: "192.168.1.11:8080"
+#         check: true
+#         backup: true
+haproxy_backends: []
+
+# HAProxy stats configuration
+haproxy_stats_enable: false
+haproxy_stats_uri: "/haproxy?stats"
+haproxy_stats_realm: "HAProxy Statistics"
+haproxy_stats_auth: "admin:password"
+haproxy_stats_port: 8080
+
+# Certificate path (will be managed by dz_basis.certaccord.issue role)
+haproxy_cert_path: "/etc/haproxy/certs"
